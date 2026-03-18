@@ -1,0 +1,96 @@
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#define BUF_SIZE 1024
+
+typedef struct {
+  char mssv[20];
+  char name[50];
+  char birthday[20];
+  float cpa;
+} student_info_t;
+
+void read_info(student_info_t *student) {
+  printf("Enter student information:\n");
+  printf("MSSV: ");
+  fgets(student->mssv, sizeof(student->mssv), stdin);
+  student->mssv[strcspn(student->mssv, "\n")] = '\0'; // Remove newline
+
+  printf("Name: ");
+  fgets(student->name, sizeof(student->name), stdin);
+  student->name[strcspn(student->name, "\n")] = '\0'; // Remove newline
+
+  printf("Birthday (dd/mm/yyyy): ");
+  fgets(student->birthday, sizeof(student->birthday), stdin);
+  student->birthday[strcspn(student->birthday, "\n")] = '\0'; // Remove newline
+
+  printf("CPA: ");
+  scanf("%f", &student->cpa);
+  getchar(); // Consume the newline character left by scanf
+}
+
+int main(int argc, char *argv[]) {
+  if (argc != 3) {
+    fprintf(stderr, "Usage: tcp_client <IP_ADDRESS> <PORT>\n");
+    exit(1);
+  }
+
+  const char *ip_des = argv[1];
+  int port = atoi(argv[2]);
+
+  int client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (client == -1) {
+    perror("socket() failed");
+    exit(1);
+  }
+
+  struct sockaddr_in server_addr;
+  memset(&server_addr, 0, sizeof(server_addr));
+
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_port = htons(port);
+
+  if (inet_pton(AF_INET, ip_des, &server_addr.sin_addr) <= 0) {
+    perror("Invalid address");
+    exit(1);
+  }
+
+  if (connect(client, (struct sockaddr *)&server_addr, sizeof(server_addr)) <
+      0) {
+    perror("connect() failed");
+    exit(1);
+  }
+
+  printf("Connected to server %s:%d\n", ip_des, port);
+
+  char buffer[BUF_SIZE];
+  student_info_t student;
+
+  while (1) {
+    read_info(&student);
+
+    printf("Send: %s %s %s %.2f\n", student.mssv, student.name,
+           student.birthday, student.cpa);
+
+    int total = 0;
+    int len = sizeof(student_info_t);
+
+    while (total < len) {
+      int sent = send(client, ((char *)&student) + total, len - total, 0);
+      if (sent <= 0) {
+        perror("send() failed");
+        break;
+      }
+      total += sent;
+    }
+  }
+
+  close(client);
+  return 0;
+}

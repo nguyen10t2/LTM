@@ -20,19 +20,19 @@ void read_info(student_info_t *student) {
   printf("Enter student information:\n");
   printf("MSSV: ");
   fgets(student->mssv, sizeof(student->mssv), stdin);
-  student->mssv[strcspn(student->mssv, "\n")] = '\0'; // Remove newline
+  student->mssv[strcspn(student->mssv, "\n")] = '\0';
 
   printf("Name: ");
   fgets(student->name, sizeof(student->name), stdin);
-  student->name[strcspn(student->name, "\n")] = '\0'; // Remove newline
+  student->name[strcspn(student->name, "\n")] = '\0';
 
   printf("Birthday (dd/mm/yyyy): ");
   fgets(student->birthday, sizeof(student->birthday), stdin);
-  student->birthday[strcspn(student->birthday, "\n")] = '\0'; // Remove newline
+  student->birthday[strcspn(student->birthday, "\n")] = '\0';
 
   printf("CPA: ");
   scanf("%f", &student->cpa);
-  getchar(); // Consume the newline character left by scanf
+  getchar();
 }
 
 int main(int argc, char *argv[]) {

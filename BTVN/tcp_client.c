@@ -23,11 +23,10 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  struct sockaddr_in server_addr;
-  memset(&server_addr, 0, sizeof(server_addr));
-
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(port);
+  struct sockaddr_in server_addr = {
+      .sin_family = AF_INET,
+      .sin_port = htons(port),
+  };
 
   if (inet_pton(AF_INET, ip_des, &server_addr.sin_addr) <= 0) {
     perror("Invalid address");
@@ -49,6 +48,9 @@ int main(int argc, char *argv[]) {
     fflush(stdout);
 
     if (fgets(buffer, BUF_SIZE, stdin) == NULL)
+      break;
+
+    if (strcmp(buffer, "exit\n") == 0)
       break;
 
     int sent = send(client, buffer, strlen(buffer), 0);

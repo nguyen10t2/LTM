@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 
 #define BUF_SIZE 1024
 
@@ -15,6 +16,12 @@ typedef struct {
   char birthday[20];
   float cpa;
 } student_info_t;
+
+void get_current_time(char *buffer, size_t size) {
+  time_t now = time(NULL);
+  struct tm *tm_info = localtime(&now);
+  strftime(buffer, size, "%Y-%m-%d %H:%M:%S", tm_info);
+}
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
@@ -60,6 +67,9 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in client_addr;
   socklen_t addr_len = sizeof(client_addr);
 
+  char client_ip[INET_ADDRSTRLEN];
+  char current_time[20];
+
   while (1) {
     int client = accept(listener, (struct sockaddr *)&client_addr, &addr_len);
     if (client < 0) {
@@ -67,27 +77,29 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
+    inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
+
+    char buffer[BUF_SIZE];
     student_info_t student;
-    int total = 0;
-    int len = sizeof(student_info_t);
 
-    while (total < len) {
-      int received = recv(client, ((char *)&student) + total, len - total, 0);
-      if (received <= 0)
-        break;
-      total += received;
-    }
+    memset(buffer, 0, sizeof(buffer));
+    memset(&student, 0, sizeof(student));
 
-    printf("Received: %s | %s | %s | %.2f\n",
-       student.mssv,
-       student.name,
-       student.birthday,
-       student.cpa);
+    int received = recv(client, buffer, sizeof(buffer) - 1, 0);
 
-    if (total == len) {
-      fprintf(log_file, "%s %d %s %s %s %.2f\n",
-              inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port),
-              student.mssv, student.name, student.birthday, student.cpa);
+    if (received > 0) {
+      buffer[received] = '\0';
+
+      printf("Received from client: %s\n", buffer);
+
+      sscanf(buffer, "%[^|]|%[^|]|%[^|]|%f", student.mssv, student.name,
+             student.birthday, &student.cpa);
+      
+      get_current_time(current_time, sizeof(current_time));
+
+      fprintf(log_file, "%s %s %s %s %s %.2f\n", current_time, client_ip, student.mssv, student.name,
+              student.birthday, student.cpa);
+
       fflush(log_file);
     }
   }

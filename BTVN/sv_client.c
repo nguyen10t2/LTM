@@ -10,10 +10,10 @@
 #define BUF_SIZE 1024
 
 typedef struct {
-  char mssv[20];
   char name[50];
+  char mssv[20];
   char birthday[20];
-  float cpa;
+  char cpa[10];
 } student_info_t;
 
 void read_info(student_info_t *student) {
@@ -31,8 +31,8 @@ void read_info(student_info_t *student) {
   student->birthday[strcspn(student->birthday, "\n")] = '\0';
 
   printf("CPA: ");
-  scanf("%f", &student->cpa);
-  getchar();
+  fgets(student->cpa, sizeof(student->cpa), stdin);
+  student->cpa[strcspn(student->cpa, "\n")] = '\0';
 }
 
 int main(int argc, char *argv[]) {
@@ -71,23 +71,22 @@ int main(int argc, char *argv[]) {
 
   char buffer[BUF_SIZE];
   student_info_t student;
+  memset(&student, 0, sizeof(student));
 
   while (1) {
     read_info(&student);
 
-    printf("Send: %s %s %s %.2f\n", student.mssv, student.name,
+    printf("Send: %s %s %s %s\n", student.mssv, student.name,
            student.birthday, student.cpa);
 
-    int total = 0;
-    int len = sizeof(student_info_t);
+    memset(buffer, 0, sizeof(buffer));
 
-    while (total < len) {
-      int sent = send(client, ((char *)&student) + total, len - total, 0);
-      if (sent <= 0) {
-        perror("send() failed");
-        break;
-      }
-      total += sent;
+    snprintf(buffer, BUF_SIZE, "%s|%s|%s|%s\n", student.mssv, student.name,
+             student.birthday, student.cpa);
+
+    if (send(client, buffer, strlen(buffer), 0) == -1) {
+      perror("send() failed");
+      break;
     }
   }
 

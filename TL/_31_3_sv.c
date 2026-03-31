@@ -174,10 +174,6 @@ int main() {
         send_msg(clients[i].fd, email);
         free(email);
         clients[i].state = DONE;
-        close(clients[i].fd);
-        clients[i] = clients[nclients - 1];
-        nclients--;
-        i--;
         break;
       case DONE:
         break;

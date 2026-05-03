@@ -167,6 +167,8 @@ int32_t main() {
         return 1;
     }
 
+    printf("Server is listening on port 9000\n");
+
     client_t clients[MAX_CLIENTS];
     uint16_t num_clients = 0;
     init_clients(clients, &num_clients);

@@ -34,7 +34,5 @@ int main() {
     fds[0].events = POLLIN;
     fds[1].fd = listener;
 
-
-
     return 0;
 }

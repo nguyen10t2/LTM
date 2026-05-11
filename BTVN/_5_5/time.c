@@ -13,7 +13,7 @@
 #define BUFFER_SIZE 1024
 const char *CMD = "GET_TIME";
 const int LEN_CMD = 8;
-const char *INVALID_CMD = "INVALID_COMMAND";
+const char *INVALID_CMD = "INVALID_COMMAND\r\n";
 
 const char FORMAT[4][11] = {
     "dd/mm/yyyy",

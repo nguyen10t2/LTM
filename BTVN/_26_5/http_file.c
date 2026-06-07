@@ -69,53 +69,29 @@ void send_directory(int client, const char *real_path, const char *url_path) {
     send(client, html, strlen(html), 0);
 }
 
+const char *TEXT_PLAIN = ".txt-.h-.hpp-.c-.cpp-.rs-.java-.py-.ts-.js";
+
 const char *get_mime_type(const char *path) {
     const char *ext = strrchr(path, '.');
 
     if (!ext)
         return "application/octet-stream";
 
-    if (!strcmp(ext, ".txt"))
-        return "text/plain";
+    if (strstr(TEXT_PLAIN, ext) != NULL) return "text/plain";
 
-    if (!strcmp(ext, ".html"))
-        return "text/html";
+    if (!strcmp(ext, ".html")) return "text/html";
 
-    if (!strcmp(ext, ".jpg"))
-        return "image/jpeg";
+    if (!strcmp(ext, ".jpg")) return "image/jpeg";
 
-    if (!strcmp(ext, ".jpeg"))
-        return "image/jpeg";
+    if (!strcmp(ext, ".jpeg")) return "image/jpeg";
 
-    if (!strcmp(ext, ".png"))
-        return "image/png";
+    if (!strcmp(ext, ".png")) return "image/png";
 
-    if (!strcmp(ext, ".gif"))
-        return "image/gif";
+    if (!strcmp(ext, ".gif")) return "image/gif";
 
-    if (!strcmp(ext, ".mp3"))
-        return "audio/mpeg";
+    if (!strcmp(ext, ".mp3")) return "audio/mpeg";
 
-    if (!strcmp(ext, ".mp4"))
-        return "video/mp4";
-
-    if (!strcmp(ext, ".c"))
-        return "text/plain";
-
-    if (!strcmp(ext, ".cpp"))
-        return "text/plain";
-
-    if (!strcmp(ext, ".h"))
-        return "text/plain";
-
-    if (!strcmp(ext, ".py"))
-        return "text/plain";
-
-    if (!strcmp(ext, ".rs"))
-        return "text/plain";
-
-    if (!strcmp(ext, ".java"))
-        return "text/plain";
+    if (!strcmp(ext, ".mp4")) return "video/mp4";
 
     return "application/octet-stream";
 }
